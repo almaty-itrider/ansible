@@ -9,7 +9,7 @@
     src: "{{ postgres_exporter_url }}"
     dest: /tmp/
     remote_src: true
-  when: postgres_exporter_dir.stat.exists == False
+  when: not postgres_exporter_dir.stat.exists
   register: download_postgres_exporter_result
 
 - name: postgres_exporter | Copy files
@@ -52,4 +52,4 @@
   ansible.builtin.file:
     path: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-amd64
     state: absent
-  when: postgres_exporter_dir.stat.exists == True and download_postgres_exporter_result is succeeded
+  when: not postgres_exporter_dir.stat.exists and download_postgres_exporter_result is succeeded
