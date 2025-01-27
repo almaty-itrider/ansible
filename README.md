@@ -10,6 +10,7 @@ Debian-based:
 sudo apt install ansible
 ```
 or
+
 RedHat-based:
 ```bash
 sudo dnf install ansible
@@ -24,11 +25,7 @@ git clone <repository_url>
 
 - Additionally, create a file named `vault.yml` in the path `inventory/<environment>/group_vars/<environment>/vault.yml`. This file should store the sensitive variables required by the roles. An example file `vault.yml.example` is also included in the repository for your guidance.
 
-To create a vault file, you can do the following:
-```bash
-touch inventory/<environment>/group_vars/<environment>/vault.yml
-```
-Then, you can encrypt the file using the following command:
+  You can encrypt the file using the following command:
 ```bash
 ansible-vault encrypt inventory/<environment>/group_vars/<environment>/vault.yml
 ```
