@@ -1,0 +1,20 @@
+---
+- name: system | Disable SELinux
+  ansible.posix.selinux:
+    state: disabled
+
+- name: system | Open port 9187
+  ansible.posix.firewalld:
+    port: 9187/tcp
+    permanent: true
+    state: enabled
+    immediate: true
+  failed_when: false
+
+- name: system | Create user "{{ postgres_exporter_user }}"
+  ansible.builtin.user:
+    name: "{{ postgres_exporter_user }}"
+    shell: /bin/false
+    state: present
+    system: true
+  register: create_postgres_exporter_system_user_result

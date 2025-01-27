@@ -1,0 +1,15 @@
+---
+- name: Include tasks to configure system, database and install postgres_exporter
+  become: true
+  block:
+    - name: Include task to configure system
+      ansible.builtin.include_tasks:
+        file: system.yml
+
+    - name: Include task to configure database
+      ansible.builtin.include_tasks:
+        file: db.yml
+
+    - name: Include task to install postgres_exporter
+      ansible.builtin.include_tasks:
+        file: postgres_exporter.yml

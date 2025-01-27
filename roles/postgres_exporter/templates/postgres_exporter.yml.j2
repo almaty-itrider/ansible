@@ -1,0 +1,8 @@
+auth_modules:
+  afhub:
+    type: userpass
+    userpass:
+      username: {{ postgres_exporter_db_user }}
+      password: {{ postgres_exporter_db_password }}
+    options:
+      sslmode: disable

@@ -1,0 +1,6 @@
+---
+- name: Install, configure and start Postgres Exporter
+  hosts: db
+
+  roles:
+    - postgres_exporter

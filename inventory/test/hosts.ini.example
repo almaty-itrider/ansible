@@ -1,0 +1,4 @@
+[db]
+af-dmz-db-1.kisc.kz ansible_host=192.168.6.74
+af-dmz-db-2.kisc.kz ansible_host=192.168.6.75
+af-dmz-db-3.kisc.kz ansible_host=192.168.6.76

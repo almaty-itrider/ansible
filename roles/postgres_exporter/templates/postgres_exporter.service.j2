@@ -1,0 +1,14 @@
+[Unit]
+Description=PostgreSQL exporter for Prometheus
+After=network.target
+
+[Service]
+User={{ postgres_exporter_user }}
+Group={{ postgres_exporter_user }}
+Type=simple
+Restart=on-failure
+EnvironmentFile=/opt/postgres_exporter/postgres_exporter.env
+ExecStart=/usr/local/bin/postgres_exporter --config.file=/opt/postgres_exporter/postgres_exporter.yml
+
+[Install]
+WantedBy=multi-user.target

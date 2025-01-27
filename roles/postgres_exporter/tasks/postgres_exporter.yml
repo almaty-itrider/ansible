@@ -1,0 +1,55 @@
+---
+- name: postgres_exporter | Check if postgres_exporter is already downloaded
+  ansible.builtin.stat:
+    path: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-amd64/
+  register: postgres_exporter_dir
+
+- name: postgres_exporter | Download and unarchive postgres_exporter
+  ansible.builtin.unarchive:
+    src: "{{ postgres_exporter_url }}"
+    dest: /tmp/
+    remote_src: true
+  when: postgres_exporter_dir.stat.exists == False
+  register: download_postgres_exporter_result
+
+- name: postgres_exporter | Copy files
+  when: create_db_user_result.user is defined
+  notify:
+    - Restart postgres_exporter
+  block:
+    - name: postgres_exporter | Copy postgres_exporter binary to /usr/local/bin
+      ansible.builtin.copy:
+        src: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-amd64/postgres_exporter
+        dest: /usr/local/bin/postgres_exporter
+        owner: "{{ postgres_exporter_user }}"
+        group: "{{ postgres_exporter_user }}"
+        mode: "0755"
+        remote_src: true
+
+    - name: postgres_exporter | Create postgres_exporter configs directory
+      ansible.builtin.file:
+        path: /opt/postgres_exporter
+        state: directory
+        owner: "{{ postgres_exporter_user }}"
+        group: "{{ postgres_exporter_user }}"
+        mode: "0755"
+
+    - name: postgres_exporter | Copy template files
+      ansible.builtin.template:
+        src: "{{ __postgres_exporter_item.src }}"
+        dest: "{{ __postgres_exporter_item.dest }}"
+        owner: "{{ postgres_exporter_user }}"
+        group: "{{ postgres_exporter_user }}"
+        mode: "0640"
+      loop:
+        - { src: "postgres_exporter.env.j2", dest: "/opt/postgres_exporter/postgres_exporter.env" }
+        - { src: "postgres_exporter.yml.j2", dest: "/opt/postgres_exporter/postgres_exporter.yml" }
+        - { src: "postgres_exporter.service.j2", dest: "/etc/systemd/system/postgres_exporter.service" }
+      loop_control:
+        loop_var: __postgres_exporter_item
+
+- name: Remove postgres_exporter binary from /tmp
+  ansible.builtin.file:
+    path: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-amd64
+    state: absent
+  when: postgres_exporter_dir.stat.exists == True and download_postgres_exporter_result is succeeded

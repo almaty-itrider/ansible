@@ -1,0 +1,7 @@
+---
+- name: Import handlers
+  become: true
+  block:
+    - name: Import postgres_exporter handlers
+      ansible.builtin.import_tasks:
+        file: postgres_exporter.yml
