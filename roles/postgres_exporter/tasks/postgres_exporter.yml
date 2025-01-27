@@ -1,7 +1,7 @@
 ---
 - name: postgres_exporter | Check if postgres_exporter is already downloaded
   ansible.builtin.stat:
-    path: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-amd64/
+    path: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-{{ postgres_exporter_proc_arch }}/
   register: postgres_exporter_dir
 
 - name: postgres_exporter | Download and unarchive postgres_exporter
@@ -19,7 +19,7 @@
   block:
     - name: postgres_exporter | Copy postgres_exporter binary to /usr/local/bin
       ansible.builtin.copy:
-        src: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-amd64/postgres_exporter
+        src: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-{{ postgres_exporter_proc_arch }}/postgres_exporter
         dest: /usr/local/bin/postgres_exporter
         owner: "{{ postgres_exporter_user }}"
         group: "{{ postgres_exporter_user }}"
@@ -50,6 +50,6 @@
 
 - name: Remove postgres_exporter binary from /tmp
   ansible.builtin.file:
-    path: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-amd64
+    path: /tmp/postgres_exporter-{{ postgres_exporter_version }}.linux-{{ postgres_exporter_proc_arch }}
     state: absent
   when: not postgres_exporter_dir.stat.exists and download_postgres_exporter_result is succeeded

@@ -1,0 +1,7 @@
+---
+- name: Import handlers
+  become: true
+  block:
+    - name: Import node_exporter handlers
+      ansible.builtin.import_tasks:
+        file: node_exporter.yml

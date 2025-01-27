@@ -1,3 +1,4 @@
+.DS_STORE
 hosts.ini
 vault.yml
 .ansible/
