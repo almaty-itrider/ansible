@@ -1,0 +1,11 @@
+---
+- name: Include tasks to configure system, database and install node_exporter
+  become: true
+  block:
+    - name: Include task to configure system
+      ansible.builtin.include_tasks:
+        file: system.yml
+
+    - name: Include task to install node_exporter
+      ansible.builtin.include_tasks:
+        file: node_exporter.yml

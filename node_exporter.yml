@@ -1,0 +1,6 @@
+---
+- name: Install, configure and start Node Exporter
+  hosts: all
+
+  roles:
+    - node_exporter
