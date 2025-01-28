@@ -1,0 +1,7 @@
+---
+- name: Import handlers
+  become: true
+  block:
+    - name: Import sql_exporter handlers
+      ansible.builtin.import_tasks:
+        file: sql_exporter.yml
