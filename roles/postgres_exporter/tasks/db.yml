@@ -1,13 +1,13 @@
 ---
 - name: db | Create db user for postgres_exporter
   community.postgresql.postgresql_user:
-    name: "{{ postgres_exporter_db_user }}"
-    password: "{{ postgres_exporter_db_password }}"
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
   register: create_db_user_result
 
 - name: db | Grant monitoring role to db user
   community.postgresql.postgresql_membership:
     group: pg_monitor
-    target_role: "{{ postgres_exporter_db_user }}"
+    target_role: "{{ db_user }}"
     state: present
   when: create_db_user_result.user is defined
