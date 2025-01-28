@@ -1,5 +1,17 @@
 ---
+# URL to download sql_exporter
 sql_exporter_proc_arch: amd64
 sql_exporter_version: 0.17.0
 sql_exporter_url: https://github.com/burningalchemist/sql_exporter/releases/download/{{ sql_exporter_version }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}.tar.gz
+
+# System user to run sql_exporter
 sql_exporter_user: sql_exporter
+
+# Temporary directory to download sql_exporter
+sql_exporter_tmp_dir: /tmp
+
+# Directory to install sql_exporter
+sql_exporter_install_dir: /usr/local/bin
+
+# Directory to store sql_exporter configuration files
+sql_exporter_config_dir: /opt/sql_exporter

@@ -33,7 +33,7 @@
         owner: "{{ sql_exporter_user }}"
         group: "{{ sql_exporter_user }}"
         mode: "0755"
-    
+
     - name: sql_exporter | Copy sql_exporter metrics file to /opt/sql_exporter
       ansible.builtin.copy:
         src: pg_metrics.collector.yml
