@@ -1,5 +1,5 @@
 ---
-- name: db | Create db user for postgres_exporter
+- name: db | Create db user for sql_exporter
   community.postgresql.postgresql_user:
     name: "{{ db_user }}"
     password: "{{ db_password }}"

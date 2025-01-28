@@ -1,0 +1,6 @@
+---
+- name: Install, configure and start SQL Exporter
+  hosts: db
+
+  roles:
+    - sql_exporter

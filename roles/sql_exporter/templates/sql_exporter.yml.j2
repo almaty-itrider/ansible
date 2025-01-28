@@ -1,0 +1,14 @@
+global:
+  scrape_timeout: 10s
+  scrape_timeout_offset: 500ms
+  min_interval: 0s
+  max_connections: 3
+  max_idle_connections: 3
+  max_connection_lifetime: 5m
+
+target:
+  data_source_name: 'postgresql://{{ db_user }}:{{ db_password }}@{{ db_host }}:{{ db_port }}/{{ db_name }}?sslmode=disable'
+  collectors: [pg_metrics]
+
+collector_files: 
+  - "pg_metrics.collector.yml"

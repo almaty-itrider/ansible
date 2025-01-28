@@ -1,0 +1,13 @@
+[Unit]
+Description=SQL exporter for Prometheus
+After=network.target
+
+[Service]
+User={{ sql_exporter_user }}
+Group={{ sql_exporter_user }}
+Type=simple
+Restart=on-failure
+ExecStart=/usr/local/bin/sql_exporter --config.file=/opt/sql_exporter/sql_exporter.yml
+
+[Install]
+WantedBy=multi-user.target

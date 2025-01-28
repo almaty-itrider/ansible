@@ -1,12 +1,17 @@
 ---
+# URL to download postgres_exporter
 postgres_exporter_proc_arch: amd64
 postgres_exporter_version: 0.16.0
 postgres_exporter_url: https://github.com/prometheus-community/postgres_exporter/releases/download/v{{ postgres_exporter_version }}/postgres_exporter-{{ postgres_exporter_version }}.linux-{{ postgres_exporter_proc_arch }}.tar.gz
+
+# System user to run postgres_exporter
 postgres_exporter_user: postgres_exporter
 
-# ===== DB vars =====
-postgres_exporter_db_host: "{{ db_host }}"
-postgres_exporter_db_port: "{{ db_port }}"
-postgres_exporter_db_user: "{{ db_user }}"
-postgres_exporter_db_password: "{{ db_password }}"
-postgres_exporter_db_name: "{{ db_name }}"
+# Temporary directory to download postgres_exporter
+postgres_exporter_tmp_dir: /tmp
+
+# Directory to install postgres_exporter
+postgres_exporter_install_dir: /usr/local/bin
+
+# Directory to store postgres_exporter configuration files
+postgres_exporter_config_dir: /opt/postgres_exporter

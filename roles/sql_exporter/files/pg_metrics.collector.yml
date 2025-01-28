@@ -1,0 +1,75 @@
+collector_name: pg_metrics
+
+metrics:
+  - metric_name: pg_database_size
+    type: gauge
+    help: 'Total database size.'
+    values: [size]
+    query: >
+      SELECT SUM(pg_database_size(pg_database.datname)) AS size FROM pg_database;
+
+  - metric_name: pg_replication_lag
+    type: gauge
+    help: 'Replication lag behind master in seconds.'
+    values: [lag]
+    query: >-
+      SELECT CASE WHEN NOT pg_is_in_recovery() THEN 0 ELSE GREATEST (0,
+      EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))) END AS lag;
+
+  - metric_name: pg_postmaster_start_time
+    type: gauge
+    help: 'Time at which postmaster started.'
+    values: [start_time_seconds]
+    query: >
+      SELECT EXTRACT(EPOCH FROM pg_postmaster_start_time()) AS start_time_seconds;
+
+  - metric_name: application_idle_time_seconds
+    type: gauge
+    help: 'Average idle time in seconds for processes of different applications.'
+    key_labels:
+      - application_name
+    values: [avg_idle_time]
+    query: |
+      SELECT
+          application_name,
+          ROUND(AVG(EXTRACT(EPOCH FROM (now() - state_change))), 2) AS avg_idle_time
+      FROM
+          pg_stat_activity
+      WHERE
+          state = 'idle'
+      GROUP BY
+          application_name;
+
+  - metric_name: application_idle_process_count
+    type: gauge
+    help: 'Number of idle processes for different applications.'
+    key_labels:
+      - application_name
+    values: [process_count]
+    query: |
+      SELECT
+          application_name,
+          COUNT(*) AS process_count
+      FROM
+          pg_stat_activity
+      WHERE
+          state = 'idle'
+      GROUP BY
+          application_name;
+
+  - metric_name: application_max_idle_time_seconds
+    type: gauge
+    help: 'Maximum idle time in seconds for processes of different applications.'
+    key_labels:
+      - application_name
+    values: [max_idle_time]
+    query: |
+      SELECT
+          application_name,
+          MAX(EXTRACT(EPOCH FROM (now() - state_change))) AS max_idle_time
+      FROM
+          pg_stat_activity
+      WHERE
+          state = 'idle'
+      GROUP BY
+          application_name;

@@ -1,5 +1,17 @@
 ---
+# URL to download node_exporter
 node_exporter_proc_arch: amd64
 node_exporter_version: 1.8.2
 node_exporter_url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}.tar.gz
+
+# System user to run node_exporter
 node_exporter_user: node_exporter
+
+# Temporary directory to download node_exporter
+node_exporter_tmp_dir: /tmp
+
+# Directory to install node_exporter
+node_exporter_install_dir: /usr/local/bin
+
+# Directory to store node_exporter configuration files
+node_exporter_config_dir: /opt/node_exporter
