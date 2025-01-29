@@ -7,8 +7,8 @@ User={{ postgres_exporter_user }}
 Group={{ postgres_exporter_user }}
 Type=simple
 Restart=on-failure
-EnvironmentFile=/opt/postgres_exporter/postgres_exporter.env
-ExecStart=/usr/local/bin/postgres_exporter --config.file=/opt/postgres_exporter/postgres_exporter.yml
+EnvironmentFile={{ postgres_exporter_config_dir }}/postgres_exporter.env
+ExecStart={{ postgres_exporter_install_dir }}/postgres_exporter --config.file={{ postgres_exporter_config_dir }}/postgres_exporter.yml
 
 [Install]
 WantedBy=multi-user.target

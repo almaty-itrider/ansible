@@ -13,5 +13,8 @@ node_exporter_tmp_dir: /tmp
 # Directory to install node_exporter
 node_exporter_install_dir: /usr/local/bin
 
+# Directory to store node_exporter service
+node_exporter_service_dir: /etc/systemd/system
+
 # Directory to store node_exporter configuration files
 node_exporter_config_dir: /opt/node_exporter

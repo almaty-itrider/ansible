@@ -13,5 +13,8 @@ sql_exporter_tmp_dir: /tmp
 # Directory to install sql_exporter
 sql_exporter_install_dir: /usr/local/bin
 
+# Directory to store node_exporter service
+sql_exporter_service_dir: /etc/systemd/system
+
 # Directory to store sql_exporter configuration files
 sql_exporter_config_dir: /opt/sql_exporter

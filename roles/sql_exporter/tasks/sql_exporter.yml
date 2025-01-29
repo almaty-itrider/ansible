@@ -1,13 +1,13 @@
 ---
 - name: sql_exporter | Check if sql_exporter is already downloaded
   ansible.builtin.stat:
-    path: /tmp/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/
+    path: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/"
   register: sql_exporter_dir
 
 - name: sql_exporter | Download and unarchive sql_exporter
   ansible.builtin.unarchive:
     src: "{{ sql_exporter_url }}"
-    dest: /tmp/
+    dest: "{{ sql_exporter_tmp_dir }}"
     remote_src: true
   when: not sql_exporter_dir.stat.exists
   register: download_sql_exporter_result
@@ -17,10 +17,10 @@
   notify:
     - Restart sql_exporter
   block:
-    - name: sql_exporter | Copy sql_exporter binary to /usr/local/bin
+    - name: sql_exporter | Copy sql_exporter binary to {{ sql_exporter_install_dir }}
       ansible.builtin.copy:
-        src: /tmp/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/sql_exporter
-        dest: /usr/local/bin/sql_exporter
+        src: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/sql_exporter"
+        dest: "{{ sql_exporter_install_dir }}/sql_exporter"
         owner: "{{ sql_exporter_user }}"
         group: "{{ sql_exporter_user }}"
         mode: "0755"
@@ -28,16 +28,16 @@
 
     - name: sql_exporter | Create sql_exporter configs directory
       ansible.builtin.file:
-        path: /opt/sql_exporter
+        path: "{{ sql_exporter_config_dir }}"
         state: directory
         owner: "{{ sql_exporter_user }}"
         group: "{{ sql_exporter_user }}"
         mode: "0755"
 
-    - name: sql_exporter | Copy sql_exporter metrics file to /opt/sql_exporter
+    - name: sql_exporter | Copy sql_exporter metrics file to {{ sql_exporter_config_dir }}
       ansible.builtin.copy:
         src: pg_metrics.collector.yml
-        dest: /opt/sql_exporter/pg_metrics.collector.yml
+        dest: "{{ sql_exporter_config_dir }}/pg_metrics.collector.yml"
         owner: "{{ sql_exporter_user }}"
         group: "{{ sql_exporter_user }}"
         mode: "0755"
@@ -50,13 +50,13 @@
         group: "{{ sql_exporter_user }}"
         mode: "0640"
       loop:
-        - { src: "sql_exporter.yml.j2", dest: "/opt/sql_exporter/sql_exporter.yml" }
-        - { src: "sql_exporter.service.j2", dest: "/etc/systemd/system/sql_exporter.service" }
+        - { src: "sql_exporter.yml.j2", dest: "{{ sql_exporter_config_dir }}/sql_exporter.yml" }
+        - { src: "sql_exporter.service.j2", dest: "{{ sql_exporter_service_dir }}/sql_exporter.service" }
       loop_control:
         loop_var: __sql_exporter_item
 
-- name: Remove sql_exporter binary from /tmp
+- name: Remove sql_exporter binary from temporary directory
   ansible.builtin.file:
-    path: /tmp/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}
+    path: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}"
     state: absent
   when: not sql_exporter_dir.stat.exists and download_sql_exporter_result is succeeded
