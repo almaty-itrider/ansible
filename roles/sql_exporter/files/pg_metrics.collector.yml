@@ -1,31 +1,89 @@
 collector_name: pg_metrics
 
 metrics:
-  - metric_name: pg_database_size
+  # Общий размер всех баз данных в PostgreSQL
+  - metric_name: pg_database_total_size
     type: gauge
-    help: 'Total database size.'
+    help: 'Total size of all PostgreSQL databases.'
     values: [size]
     query: |
       SELECT SUM(pg_database_size(pg_database.datname)) AS size FROM pg_database;
 
-  - metric_name: pg_replication_lag
+  # Задержка репликации в секундах
+  - metric_name: pg_replication_lag_seconds
     type: gauge
-    help: 'Replication lag behind master in seconds.'
+    help: 'Replication lag in seconds.'
     values: [lag]
     query: |
-      SELECT CASE WHEN NOT pg_is_in_recovery() THEN 0 ELSE GREATEST (0,
-      EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))) END AS lag;
+      SELECT CASE WHEN NOT pg_is_in_recovery() THEN 0 ELSE GREATEST(0, EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))) END AS lag;
 
-  - metric_name: pg_postmaster_start_time
+  # Время запуска сервера PostgreSQL (Postmaster)
+  - metric_name: pg_postmaster_start_timestamp
     type: gauge
-    help: 'Time at which postmaster started.'
+    help: 'Time when the PostgreSQL server (Postmaster) started.' 
     values: [start_time_seconds]
     query: |
       SELECT EXTRACT(EPOCH FROM pg_postmaster_start_time()) AS start_time_seconds;
 
-  - metric_name: application_idle_time_seconds
+  # Время выполнения самых долгих SQL-запросов в секундах
+  - metric_name: pg_longest_running_queries_seconds
     type: gauge
-    help: 'Average idle time in seconds for processes of different applications.'
+    help: 'Execution time of the longest-running SQL queries in seconds.'
+    key_labels:
+      - pid
+      - usename
+      - query
+    values: [duration_seconds]
+    query: |
+      SELECT pid, usename, query,
+        GREATEST(EXTRACT(EPOCH FROM (now() - query_start)), 0) AS duration_seconds
+      FROM pg_stat_activity
+      WHERE state <> 'idle'
+        AND now() > query_start
+      ORDER BY duration_seconds DESC;
+
+  # Количество SQL-запросов, выполняющихся более 5 секунд
+  - metric_name: pg_stuck_queries_count
+    type: gauge
+    help: 'Number of SQL queries stuck for more than 5 seconds.'
+    values: [query_count]
+    query: |
+      SELECT COUNT(*) AS query_count
+      FROM pg_stat_activity
+      WHERE now() - query_start > interval '5 seconds';
+
+  # Количество SQL-запросов, которые ожидают снятия блокировки
+  - metric_name: pg_blocked_queries_count
+    type: gauge
+    help: 'Number of SQL queries waiting for a lock release.'
+    values: [query_count]
+    query: |
+      SELECT COUNT(*) AS query_count
+      FROM pg_stat_activity
+      WHERE wait_event IS NOT NULL;
+
+  # Общее время простоя (idle) серверных процессов по приложениям
+  - metric_name: pg_idle_process_time_sum
+    type: gauge
+    help: 'Total idle time of server processes per application.'
+    key_labels:
+      - application_name
+    values: [seconds_sum]
+    query_ref: pg_process_idle_query
+
+  # Количество процессов в состоянии idle по приложениям
+  - metric_name: pg_idle_process_count
+    type: gauge
+    help: 'Number of idle processes per application.'
+    key_labels:
+      - application_name
+    values: [seconds_count]
+    query_ref: pg_process_idle_query
+
+  # Среднее время простоя (idle) процессов в секундах по приложениям
+  - metric_name: pg_application_avg_idle_time_seconds
+    type: gauge
+    help: 'Average idle time of processes in seconds per application.'
     key_labels:
       - application_name
     values: [avg_idle_time]
@@ -40,9 +98,10 @@ metrics:
       GROUP BY
           application_name;
 
-  - metric_name: application_idle_process_count
+  # Количество процессов в состоянии idle по приложениям
+  - metric_name: pg_application_idle_process_count
     type: gauge
-    help: 'Number of idle processes for different applications.'
+    help: 'Number of idle processes per application.'
     key_labels:
       - application_name
     values: [process_count]
@@ -57,9 +116,10 @@ metrics:
       GROUP BY
           application_name;
 
-  - metric_name: application_max_idle_time_seconds
+  # Максимальное время простоя (idle) процессов в секундах по приложениям
+  - metric_name: pg_application_max_idle_time_seconds
     type: gauge
-    help: 'Maximum idle time in seconds for processes of different applications.'
+    help: 'Maximum idle time of processes in seconds per application.'
     key_labels:
       - application_name
     values: [max_idle_time]
@@ -74,9 +134,10 @@ metrics:
       GROUP BY
           application_name;
 
-  - metric_name: pg_longest_active_reqs
+  # Длительность самых долгих активных SQL-запросов в секундах
+  - metric_name: pg_longest_active_queries_seconds
     type: gauge
-    help: 'The longest active requests in seconds.'
+    help: 'Duration of the longest active SQL queries in seconds.'
     key_labels:
       - application_name
       - pid
@@ -90,3 +151,45 @@ metrics:
         WHERE state != 'idle'
         ORDER BY duration_seconds DESC
         LIMIT 10;
+
+  # Размер индексов, которые никогда не использовались
+  - metric_name: pg_never_used_indexes_size
+    type: gauge
+    help: 'Size of indexes that have never been used.'
+    key_labels:
+      - schemaname
+      - relname
+      - indexrelname
+    values: [index_size]
+    query: |
+      SELECT 
+        pi.schemaname, 
+        pi.relname, 
+        pi.indexrelname,
+        pg_table_size(pi.indexrelid) AS index_size
+      FROM pg_stat_user_indexes pi
+      WHERE idx_scan = 0
+      ORDER BY index_size DESC;
+
+queries:
+  - query_name: pg_process_idle_query
+    query: |
+        WITH metrics AS (
+          SELECT application_name,
+                 SUM(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - state_change)))::bigint AS process_idle_seconds_sum,
+                 COUNT(*) AS process_idle_seconds_count
+          FROM pg_stat_activity
+          WHERE state = 'idle'
+          GROUP BY application_name
+        )
+        SELECT application_name,
+               process_idle_seconds_sum AS seconds_sum,
+               process_idle_seconds_count AS seconds_count
+        FROM metrics;
+
+  - query_name: pg_stat_tables
+    query: |
+      SELECT current_database() AS datname, schemaname, relname, seq_scan,
+             seq_tup_read, idx_scan, idx_tup_fetch, n_tup_ins, n_tup_upd, n_tup_del,
+             n_tup_hot_upd, n_live_tup, n_dead_tup, vacuum_count
+      FROM pg_stat_user_tables;
