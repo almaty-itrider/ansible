@@ -40,7 +40,7 @@
         dest: "{{ sql_exporter_config_dir }}/pg_metrics.collector.yml"
         owner: "{{ sql_exporter_user }}"
         group: "{{ sql_exporter_user }}"
-        mode: "0755"
+        mode: "0640"
 
     - name: sql_exporter | Copy template files
       ansible.builtin.template:

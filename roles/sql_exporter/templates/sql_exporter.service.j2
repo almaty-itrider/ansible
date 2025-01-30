@@ -7,7 +7,7 @@ User={{ sql_exporter_user }}
 Group={{ sql_exporter_user }}
 Type=simple
 Restart=on-failure
-ExecStart={{ sql_exporter_service_dir }}/sql_exporter --config.file={{ sql_exporter_config_dir }}/sql_exporter.yml
+ExecStart={{ sql_exporter_install_dir }}/sql_exporter --config.file={{ sql_exporter_config_dir }}/sql_exporter.yml
 
 [Install]
 WantedBy=multi-user.target
