@@ -5,14 +5,14 @@ metrics:
     type: gauge
     help: 'Total database size.'
     values: [size]
-    query: >
+    query: |
       SELECT SUM(pg_database_size(pg_database.datname)) AS size FROM pg_database;
 
   - metric_name: pg_replication_lag
     type: gauge
     help: 'Replication lag behind master in seconds.'
     values: [lag]
-    query: >-
+    query: |
       SELECT CASE WHEN NOT pg_is_in_recovery() THEN 0 ELSE GREATEST (0,
       EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))) END AS lag;
 
@@ -20,7 +20,7 @@ metrics:
     type: gauge
     help: 'Time at which postmaster started.'
     values: [start_time_seconds]
-    query: >
+    query: |
       SELECT EXTRACT(EPOCH FROM pg_postmaster_start_time()) AS start_time_seconds;
 
   - metric_name: application_idle_time_seconds
@@ -73,3 +73,20 @@ metrics:
           state = 'idle'
       GROUP BY
           application_name;
+
+  - metric_name: pg_longest_active_reqs
+    type: gauge
+    help: 'The longest active requests in seconds.'
+    key_labels:
+      - application_name
+      - pid
+    values: ['duration_seconds']
+    query: |
+        SELECT
+            COALESCE(application_name, 'unknown') AS application_name,
+            pid,
+            EXTRACT(EPOCH FROM (clock_timestamp() - query_start)) AS duration_seconds
+        FROM pg_stat_activity
+        WHERE state != 'idle'
+        ORDER BY duration_seconds DESC
+        LIMIT 10;
