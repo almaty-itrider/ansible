@@ -39,7 +39,7 @@ ansible-playbook -i inventories/<environment>/hosts.ini playbooks/postgres_expor
 
 Note: Don't forget to replace `<environment>` with the environment you are working on (e.g. `dev`, `staging`, `test`, `production`). Also, you need to replace `postgres_exporter.yml` with the name of the service you want to install and configure. And finally, don't forget use `ansible-lint` to check the syntax of the playbook.
 ```bash
-ansible-lint postgres_exporter.yml
+ansible-lint playbooks/postgres_exporter.yml
 ```
 
 ---
@@ -84,3 +84,5 @@ ansible-playbook -i inventories/<environment>/hosts.ini playbooks/postgres_expor
 
 Примечание: Не забудьте заменить `<environment>` на окружение, в котором вы работаете (например, `dev`, `staging`, `test`, `production`). Также вам нужно заменить `postgres_exporter.yml` на имя сервиса, который вы хотите установить и настроить. И наконец, не забудьте использовать `ansible-lint` для проверки синтаксиса плейбука.
 ```bash
+ansible-lint playbooks/postgres_exporter.yml
+```
