@@ -4,12 +4,26 @@
     path: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/"
   register: sql_exporter_dir
 
+- name: sql_exporter | Check current sql_exporter version
+  ansible.builtin.command: "{{ sql_exporter_install_dir }}/sql_exporter --version"
+  register: get_current_sql_exporter_version_result
+  failed_when: false
+  changed_when: false
+
+- name: sql_exporter | Set current sql_exporter version
+  ansible.builtin.set_fact:
+    current_sql_exporter_version: "{{ get_current_sql_exporter_version_result.stdout | regex_search('version ([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first }}"
+  when: get_current_sql_exporter_version_result is succeeded
+
 - name: sql_exporter | Download and unarchive sql_exporter
   ansible.builtin.unarchive:
     src: "{{ sql_exporter_url }}"
     dest: "{{ sql_exporter_tmp_dir }}"
     remote_src: true
-  when: not sql_exporter_dir.stat.exists
+  when: current_sql_exporter_version != sql_exporter_version
+  notify:
+    - Copy sql_exporter binary to {{ sql_exporter_install_dir }}
+    - Remove sql_exporter binary from temporary directory
   register: download_sql_exporter_result
 
 - name: sql_exporter | Copy files
@@ -17,15 +31,6 @@
   notify:
     - Restart sql_exporter
   block:
-    - name: sql_exporter | Copy sql_exporter binary to {{ sql_exporter_install_dir }}
-      ansible.builtin.copy:
-        src: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/sql_exporter"
-        dest: "{{ sql_exporter_install_dir }}/sql_exporter"
-        owner: "{{ sql_exporter_user }}"
-        group: "{{ sql_exporter_user }}"
-        mode: "0755"
-        remote_src: true
-
     - name: sql_exporter | Create sql_exporter configs directory
       ansible.builtin.file:
         path: "{{ sql_exporter_config_dir }}"
@@ -54,9 +59,3 @@
         - { src: "sql_exporter.service.j2", dest: "{{ sql_exporter_service_dir }}/sql_exporter.service" }
       loop_control:
         loop_var: __sql_exporter_item
-
-- name: Remove sql_exporter binary from temporary directory
-  ansible.builtin.file:
-    path: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}"
-    state: absent
-  when: not sql_exporter_dir.stat.exists and download_sql_exporter_result is succeeded
