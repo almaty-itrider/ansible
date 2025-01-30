@@ -9,12 +9,10 @@
   register: get_current_postgres_exporter_version_result
   failed_when: false
   changed_when: false
-- ansible.builtin.debug:
-    var: get_current_postgres_exporter_version_result.stdout
 
 - name: postgres_exporter | Set current postgres_exporter version
   ansible.builtin.set_fact:
-    current_postgres_exporter_version: "{{ get_current_postgres_exporter_version_result.stdout | regex_search('version ([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first }}"
+    current_postgres_exporter_version: "{{ get_current_postgres_exporter_version_result.stderr | regex_search('version ([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first }}"
   when: get_current_postgres_exporter_version_result is succeeded
 
 - name: postgres_exporter | Download and unarchive postgres_exporter
