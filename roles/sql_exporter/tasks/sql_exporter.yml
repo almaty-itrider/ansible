@@ -4,7 +4,7 @@
     path: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/"
   register: sql_exporter_dir
 
-- name: sql_exporter | Check current sql_exporter version
+- name: sql_exporter | Check installed sql_exporter version
   ansible.builtin.command: "{{ sql_exporter_install_dir }}/sql_exporter --version"
   register: get_current_sql_exporter_version_result
   failed_when: false

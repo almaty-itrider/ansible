@@ -4,27 +4,32 @@
     path: "{{ node_exporter_tmp_dir }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}/"
   register: node_exporter_dir
 
+- name: node_exporter | Check installed node_exporter version
+  ansible.builtin.command: "{{ node_exporter_install_dir }}/node_exporter --version"
+  register: get_current_node_exporter_version_result
+  failed_when: false
+  changed_when: false
+
+- name: node_exporter | Set current node_exporter version
+  ansible.builtin.set_fact:
+    current_node_exporter_version: "{{ get_current_node_exporter_version_result.stdout | regex_search('version ([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first }}"
+  when: get_current_node_exporter_version_result is succeeded
+
 - name: node_exporter | Download and unarchive node_exporter
   ansible.builtin.unarchive:
     src: "{{ node_exporter_url }}"
     dest: "{{ node_exporter_tmp_dir }}"
     remote_src: true
-  when: not node_exporter_dir.stat.exists
+  when: current_node_exporter_version != node_exporter_version
+  notify:
+    - Copy node_exporter binary to {{ node_exporter_install_dir }}
+    - Remove node_exporter binary from temporary directory
   register: download_node_exporter_result
 
 - name: node_exporter | Copy files
   when: create_node_exporter_system_user_result.user is defined
   notify: Restart node_exporter
   block:
-    - name: node_exporter | Copy node_exporter binary to {{ node_exporter_install_dir }}
-      ansible.builtin.copy:
-        src: "{{ node_exporter_tmp_dir }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}/node_exporter"
-        dest: "{{ node_exporter_install_dir }}/node_exporter"
-        owner: "{{ node_exporter_user }}"
-        group: "{{ node_exporter_user }}"
-        mode: "0755"
-        remote_src: true
-
     - name: node_exporter | Copy node_exporter systemd service file
       ansible.builtin.template:
         src: node_exporter.service.j2
@@ -32,9 +37,3 @@
         owner: "{{ node_exporter_user }}"
         group: "{{ node_exporter_user }}"
         mode: "0644"
-
-- name: Remove node_exporter binary from temporary directory
-  ansible.builtin.file:
-    path: "{{ node_exporter_tmp_dir }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}"
-    state: absent
-  when: node_exporter_dir.stat.exists and download_node_exporter_result is changed
