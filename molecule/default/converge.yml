@@ -1,0 +1,9 @@
+---
+- name: Include a role from collection
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Testing the role
+      ansible.builtin.include_role:
+        name: node_exporter
+        tasks_from: main.yml

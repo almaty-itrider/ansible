@@ -1,33 +1,47 @@
 ---
-- name: node_exporter | Check if node_exporter is already downloaded
+- name: node_exporter | Check if node_exporter is installed
+  register: node_exporter_installed
   ansible.builtin.stat:
-    path: "{{ node_exporter_tmp_dir }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}/"
-  register: node_exporter_dir
+    path: "{{ node_exporter_install_dir }}/node_exporter"
 
-- name: node_exporter | Check installed node_exporter version
-  ansible.builtin.command: "{{ node_exporter_install_dir }}/node_exporter --version"
-  register: get_current_node_exporter_version_result
-  failed_when: false
+- name: node_exporter | Get installed node_exporter version
+  register: node_exporter_version_output
+  when: node_exporter_installed.stat.exists
   changed_when: false
+  ansible.builtin.command:
+    cmd: "{{ node_exporter_install_dir }}/node_exporter --version"
 
-- name: node_exporter | Set current node_exporter version
+- name: node_exporter | Set installed node_exporter version
+  when: node_exporter_installed.stat.exists and node_exporter_version_output is defined
   ansible.builtin.set_fact:
-    current_node_exporter_version: "{{ get_current_node_exporter_version_result.stdout | regex_search('version ([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first }}"
-  when: get_current_node_exporter_version_result is succeeded
+    installed_node_exporter_version: "{{ node_exporter_version_output.stdout | regex_search('version ([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first }}"
 
 - name: node_exporter | Download and unarchive node_exporter
+  register: download_node_exporter_result
+  when: not node_exporter_installed.stat.exists or node_exporter_version != installed_node_exporter_version
   ansible.builtin.unarchive:
     src: "{{ node_exporter_url }}"
     dest: "{{ node_exporter_tmp_dir }}"
     remote_src: true
-  when: current_node_exporter_version != node_exporter_version
-  notify:
-    - Copy node_exporter binary to {{ node_exporter_install_dir }}
-    - Remove node_exporter binary from temporary directory
-  register: download_node_exporter_result
+
+- name: Copy node_exporter binary to {{ node_exporter_install_dir }}
+  register: copy_node_exporter_binary_result
+  when: download_node_exporter_result.changed
+  ansible.builtin.copy:
+    src: "{{ node_exporter_tmp_dir }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}/node_exporter"
+    dest: "{{ node_exporter_install_dir }}/node_exporter"
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_user }}"
+    mode: "0755"
+    remote_src: true
+
+- name: Remove node_exporter binary from temporary directory
+  failed_when: false
+  ansible.builtin.file:
+    path: "{{ node_exporter_tmp_dir }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}"
+    state: absent
 
 - name: node_exporter | Copy files
-  when: create_node_exporter_system_user_result.user is defined
   notify: Restart node_exporter
   block:
     - name: node_exporter | Copy node_exporter systemd service file
