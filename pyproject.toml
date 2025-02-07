@@ -9,4 +9,5 @@ dependencies = [
     "ansible-lint>=25.1.2",
     "molecule>=25.2.0",
     "molecule-plugins[podman]>=23.7.0",
+    "pytest-testinfra>=10.1.1",
 ]

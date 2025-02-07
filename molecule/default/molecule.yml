@@ -2,8 +2,8 @@
 driver:
   name: podman
 platforms:
-  - name: rhel8
-    image: molecule-rhel8:latest
+  - name: rhel9
+    image: molecule-rhel9:latest
     dockerfile: Dockerfile
     command: "/usr/sbin/init"
     pre_build_image: false
@@ -11,3 +11,6 @@ platforms:
       - SYS_ADMIN
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+verifier:
+  name: testinfra
