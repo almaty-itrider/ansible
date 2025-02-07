@@ -1,4 +1,20 @@
 ---
+- name: Copy node_exporter binary to {{ node_exporter_install_dir }}
+  register: copy_node_exporter_binary_result
+  ansible.builtin.copy:
+    src: "{{ node_exporter_tmp_dir }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}/node_exporter"
+    dest: "{{ node_exporter_install_dir }}/node_exporter"
+    owner: "{{ node_exporter_user }}"
+    group: "{{ node_exporter_user }}"
+    mode: "0755"
+    remote_src: true
+
+- name: Remove node_exporter binary from {{ node_exporter_tmp_dir }}
+  failed_when: false
+  ansible.builtin.file:
+    path: "{{ node_exporter_tmp_dir }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_proc_arch }}"
+    state: absent
+
 - name: Restart node_exporter
   ansible.builtin.systemd_service:
     name: node_exporter
