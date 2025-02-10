@@ -3,8 +3,8 @@ driver:
   name: podman
 
 platforms:
-  - name: rhel9
-    image: molecule-rhel9:latest
+  - name: centos9
+    image: molecule-centos9:latest
     dockerfile: dockerfiles/centos-9
     command: /sbin/init
     pre_build_image: false

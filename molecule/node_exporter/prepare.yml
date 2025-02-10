@@ -1,5 +1,5 @@
 ---
-- name: Prepare
+- name: Prepare Ubuntu
   hosts: ubuntu2404
   tasks:
     - name: Install curl
