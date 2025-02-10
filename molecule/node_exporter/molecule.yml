@@ -1,12 +1,24 @@
 ---
 driver:
   name: podman
+
 platforms:
   - name: rhel9
     image: molecule-rhel9:latest
-    dockerfile: Dockerfile
-    command: "/usr/sbin/init"
+    dockerfile: dockerfiles/centos-9
+    command: /sbin/init
     pre_build_image: false
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: ubuntu2404
+    image: molecule-ubuntu2404:latest
+    dockerfile: dockerfiles/ubuntu-2404
+    command: /lib/systemd/systemd
+    pre_build_image: false
+    privileges: true
     capabilities:
       - SYS_ADMIN
     volumes:
