@@ -1,15 +1,20 @@
 ---
-- name: system | Disable SELinux
-  ansible.posix.selinux:
-    state: disabled
-
-- name: system | Open port 9399
+- name: system | Open port 9399 on RedHat based systems
   ansible.posix.firewalld:
     port: 9399/tcp
     permanent: true
     state: enabled
     immediate: true
   failed_when: false
+  when: ansible_os_family == "RedHat"
+
+- name: system | Open port 9399 on Debian based systems
+  community.general.ufw:
+    rule: allow
+    port: "9399"
+    proto: "tcp"
+  failed_when: false
+  when: ansible_os_family == "Debian"
 
 - name: system | Create user "{{ sql_exporter_user }}"
   ansible.builtin.user:

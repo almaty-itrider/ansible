@@ -1,0 +1,35 @@
+---
+- name: Prepare CentOS
+  hosts: centos-9
+  tasks:
+    - name: Install packages
+      ansible.builtin.dnf:
+        name: 
+          - python3-pip
+          - postgresql-server
+        state: latest
+
+    - name: Initialize PostgreSQL
+      ansible.builtin.command:
+        cmd: postgresql-setup --initdb
+
+    - name: Prepare Ubuntu
+      hosts: ubuntu-2404
+      tasks:
+        - name: Install packages
+          ansible.builtin.apt:
+            name: 
+              - curl
+              - python3-pip
+              - postgresql
+            state: latest
+
+    - name: Prepare All
+      hosts: all
+      tasks:
+        - name: Start PostgreSQL
+          ansible.builtin.systemd_service:
+            name: postgresql
+            state: started
+            enabled: true
+            daemon_reload: true
