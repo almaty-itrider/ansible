@@ -1,5 +1,7 @@
 __pycache__/
+.pytest_cache/
+.venv/
+.ansible/
 .DS_STORE
 hosts.ini
 vault.yml
-.ansible/
