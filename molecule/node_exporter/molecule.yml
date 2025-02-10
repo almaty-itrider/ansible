@@ -3,7 +3,7 @@ driver:
   name: podman
 
 platforms:
-  - name: centos9
+  - name: centos-9
     image: molecule-centos9:latest
     dockerfile: dockerfiles/centos-9
     command: /sbin/init
@@ -13,7 +13,7 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: ubuntu2404
+  - name: ubuntu-2404
     image: molecule-ubuntu2404:latest
     dockerfile: dockerfiles/ubuntu-2404
     command: /lib/systemd/systemd

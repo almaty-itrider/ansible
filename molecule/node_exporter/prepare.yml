@@ -1,6 +1,6 @@
 ---
 - name: Prepare Ubuntu
-  hosts: ubuntu2404
+  hosts: ubuntu-2404
   tasks:
     - name: Install curl
       ansible.builtin.apt:
