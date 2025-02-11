@@ -1,35 +1,35 @@
 ---
-- name: sql_exporter | Check if sql_exporter is already downloaded
+- name: sql_exporter | Check if sql_exporter is installed
+  register: sql_exporter_installed
   ansible.builtin.stat:
-    path: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/"
-  register: sql_exporter_dir
+    path: "{{ sql_exporter_install_dir }}/sql_exporter"
 
-- name: sql_exporter | Check installed sql_exporter version
-  ansible.builtin.command: "{{ sql_exporter_install_dir }}/sql_exporter --version"
-  register: get_current_sql_exporter_version_result
-  failed_when: false
+- name: sql_exporter | Get installed sql_exporter version
+  register: sql_exporter_version_output
+  when: sql_exporter_installed.stat.exists
   changed_when: false
+  ansible.builtin.command:
+    cmd: "{{ sql_exporter_install_dir }}/sql_exporter --version"
 
-- name: sql_exporter | Set current sql_exporter version
+- name: sql_exporter | Set installed sql_exporter version
+  when: sql_exporter_installed.stat.exists and sql_exporter_version_output is defined
   ansible.builtin.set_fact:
-    current_sql_exporter_version: "{{ get_current_sql_exporter_version_result.stdout | regex_search('version ([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first }}"
-  when: get_current_sql_exporter_version_result is succeeded
+    installed_sql_exporter_version: "{{ sql_exporter_version_output.stdout | regex_search('version ([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first }}"
 
 - name: sql_exporter | Download and unarchive sql_exporter
+  register: download_sql_exporter_result
+  when: not sql_exporter_installed.stat.exists or sql_exporter_version != installed_sql_exporter_version
+  notify:
+    - Copy sql_exporter binary to {{ sql_exporter_install_dir }}
+    - Remove sql_exporter binary from {{ sql_exporter_tmp_dir }}
   ansible.builtin.unarchive:
     src: "{{ sql_exporter_url }}"
     dest: "{{ sql_exporter_tmp_dir }}"
     remote_src: true
-  when: current_sql_exporter_version != sql_exporter_version
-  notify:
-    - Copy sql_exporter binary to {{ sql_exporter_install_dir }}
-    - Remove sql_exporter binary from temporary directory
-  register: download_sql_exporter_result
 
 - name: sql_exporter | Copy files
   when: create_db_user_result.user is defined
-  notify:
-    - Restart sql_exporter
+  notify: Restart sql_exporter
   block:
     - name: sql_exporter | Create sql_exporter configs directory
       ansible.builtin.file:

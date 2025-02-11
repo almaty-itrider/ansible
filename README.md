@@ -86,3 +86,5 @@ ansible-playbook -i inventories/<environment>/hosts.ini playbooks/postgres_expor
 ```bash
 ansible-lint playbooks/postgres_exporter.yml
 ```
+
+export ANSIBLE_ROLES_PATH=<path_to_roles>

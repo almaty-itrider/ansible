@@ -1,0 +1,8 @@
+---
+- name: Prepare Ubuntu
+  hosts: ubuntu-2404
+  tasks:
+    - name: Install packages
+      ansible.builtin.apt:
+        name: curl
+        state: present

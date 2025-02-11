@@ -1,0 +1,30 @@
+---
+driver:
+  name: podman
+
+platforms:
+  - name: centos-10
+    image: molecule-centos-10:latest
+    dockerfile: dockerfiles/centos-10
+    command: /sbin/init
+    pre_build_image: false
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: ubuntu-2404
+    image: molecule-ubuntu-2404:latest
+    dockerfile: dockerfiles/ubuntu-2404
+    command: /lib/systemd/systemd
+    pre_build_image: false
+    privileges: true
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+verifier:
+  name: testinfra
+  options:
+    verbose: true
