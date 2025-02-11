@@ -1,17 +1,34 @@
 ---
 - name: Prepare CentOS
-  hosts: centos-9
+  hosts: centos-10
   tasks:
     - name: Install packages
       ansible.builtin.dnf:
         name: 
           - python3-pip
+          - python3-psycopg2
           - postgresql-server
         state: latest
 
     - name: Initialize PostgreSQL
       ansible.builtin.command:
         cmd: postgresql-setup --initdb
+
+    - name: Grant access in pg_hba.conf
+      community.postgresql.postgresql_pg_hba:
+        dest: /var/lib/pgsql/data/pg_hba.conf
+        overwrite: true
+        rules_behavior: combine
+        contype: local
+        rules:
+          - users: all
+            databases: all
+            method: trust
+          - users: all
+            databases: all
+            contype: host
+            address: 0.0.0.0/0
+            method: md5
 
 - name: Prepare Ubuntu
   hosts: ubuntu-2404
@@ -21,6 +38,7 @@
         name: 
           - curl
           - python3-pip
+          - python3-psycopg2
           - postgresql
         state: latest
 

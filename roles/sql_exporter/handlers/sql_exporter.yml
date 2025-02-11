@@ -1,11 +1,4 @@
 ---
-- name: Restart sql_exporter
-  ansible.builtin.systemd_service:
-    name: sql_exporter
-    state: restarted
-    enabled: true
-    daemon_reload: true
-
 - name: Copy sql_exporter binary to {{ sql_exporter_install_dir }}
   ansible.builtin.copy:
     src: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}/sql_exporter"
@@ -15,7 +8,14 @@
     mode: "0755"
     remote_src: true
 
-- name: Remove sql_exporter binary from temporary directory
+- name: Remove sql_exporter binary from {{ sql_exporter_tmp_dir }}
   ansible.builtin.file:
     path: "{{ sql_exporter_tmp_dir }}/sql_exporter-{{ sql_exporter_version }}.linux-{{ sql_exporter_proc_arch }}"
     state: absent
+
+- name: Restart sql_exporter
+  ansible.builtin.systemd_service:
+    name: sql_exporter
+    state: restarted
+    enabled: true
+    daemon_reload: true
