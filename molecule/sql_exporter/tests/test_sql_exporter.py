@@ -1,15 +1,15 @@
 import testinfra
 
-host = testinfra.get_host("podman://rhel9")
+host = testinfra.get_host("podman://")
 
 
-def test_node_exporter_service(host):
-    service = host.service("node_exporter")
+def test_sql_exporter_service(host):
+    service = host.service("sql_exporter")
     assert service.is_running
     assert service.is_enabled
 
 
-def test_get_node_exporter_metrics_success(host):
+def test_get_sql_exporter_metrics_success(host):
     cmd = host.run(
         "curl -o /dev/null -s -w '%{http_code}' http://localhost:9100/metrics"
     )

@@ -1,6 +1,6 @@
 import testinfra
 
-host = testinfra.get_host("podman://rhel9")
+host = testinfra.get_host("podman://")
 
 
 def test_node_exporter_service(host):

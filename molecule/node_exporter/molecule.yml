@@ -26,3 +26,5 @@ platforms:
 
 verifier:
   name: testinfra
+  options:
+    verbose: true
