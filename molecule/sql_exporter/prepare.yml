@@ -41,6 +41,22 @@
           - python3-psycopg2
           - postgresql
         state: latest
+    
+    - name: Grant access in pg_hba.conf
+      community.postgresql.postgresql_pg_hba:
+        dest: /etc/postgresql/16/main/pg_hba.conf
+        overwrite: true
+        rules_behavior: combine
+        contype: local
+        rules:
+          - users: all
+            databases: all
+            method: trust
+          - users: all
+            databases: all
+            contype: host
+            address: 0.0.0.0/0
+            method: md5
 
 - name: Start PostgreSQL on all hosts
   hosts: all
