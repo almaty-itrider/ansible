@@ -2,44 +2,72 @@
 
 ## EN
 
-This is Ansible repository for installing and configuring some services.
+This is an Ansible repository for installing and configuring various services.
 
 ---
 
-- First of all, you need to install ansible on your machine. You can do it by running the following command:
-Debian-based:
-```bash
-sudo apt install ansible
-```
-or
+### Prerequisites
 
-RedHat-based:
+- First, you need to install `uv` to manage dependencies efficiently:
 ```bash
-sudo dnf install ansible
+pip install uv
 ```
 
-- After that, you need to clone this repository:
+- Clone this repository:
 ```bash
-git clone <repository_url>
+git clone https://github.com/almaty-itrider/ansible.git
 ```
 
-- Next, create a file named `hosts.ini` in the path `inventories/<environment>/hosts.ini`. This file should include the IP addresses of the servers you want to configure. An example file `hosts.ini.example` is provided in the repository for reference.
+- Navigate to the project directory:
+```bash
+cd ansible
+```
 
-- Additionally, create a file named `vault.yml` in the path `inventories/<environment>/group_vars/<environment>/vault.yml`. This file should store the sensitive variables required by the roles. An example file `vault.yml.example` is also included in the repository for your guidance.
+- Install the required dependencies:
+```bash
+uv sync
+```
+
+- Activate the virtual environment:
+```bash
+source .venv/bin/activate
+```
+
+### Configuration
+
+- Create an inventory file named `hosts.ini` inside `inventories/<environment>/hosts.ini`. This file should include the IP addresses of the servers you want to configure. An example file `hosts.ini.example` is provided in the repository for reference.
+
+- Additionally, create a file named `vault.yml` inside `inventories/<environment>/group_vars/<environment>/vault.yml`. This file should store sensitive variables required by the roles. An example file `vault.yml.example` is included in the repository for guidance.
 
   You can encrypt the file using the following command:
 ```bash
 ansible-vault encrypt inventories/<environment>/group_vars/<environment>/vault.yml
 ```
 
-- After that, you can run the following command to install and configure the services:
+### Running Playbooks
+
+- Execute the following command to install and configure services:
 ```bash
 ansible-playbook -i inventories/<environment>/hosts.ini playbooks/postgres_exporter.yml --ask-vault-pass
 ```
 
-Note: Don't forget to replace `<environment>` with the environment you are working on (e.g. `dev`, `staging`, `test`, `production`). Also, you need to replace `postgres_exporter.yml` with the name of the service you want to install and configure. And finally, don't forget use `ansible-lint` to check the syntax of the playbook.
+> **Note:** Replace `<environment>` with your target environment (e.g., `dev`, `staging`, `test`, `production`). Also, replace `postgres_exporter.yml` with the specific service playbook you want to execute.
+
+- Use `ansible-lint` to check the syntax of your playbooks:
 ```bash
 ansible-lint playbooks/postgres_exporter.yml
+```
+
+### Running Tests with Molecule
+
+- To test Ansible roles using Molecule, run:
+```bash
+molecule test
+```
+
+If you want to test a specific scenario, use:
+```bash
+molecule test -s <scenario_name>
 ```
 
 ---
@@ -50,41 +78,66 @@ ansible-lint playbooks/postgres_exporter.yml
 
 ---
 
-- Во-первых, вам нужно установить Ansible. Для этого выполните следующую команду:
+### Предварительные требования
 
-Debian-based:
+- Сначала установите `uv` для управления зависимостями:
 ```bash
-sudo apt install ansible
-```
-или
-
-RedHat-based:
-```bash
-sudo dnf install ansible
+pip install uv
 ```
 
-- Затем склонируйте этот репозиторий с помощью следующей команды:
+- Склонируйте репозиторий:
 ```bash
-git clone <repository_url>
+git clone https://github.com/almaty-itrider/ansible.git
 ```
 
-- Далее вам нужно создать файл `hosts.ini` в папке `inventories/<environment>/hosts.ini`. Этот файл должен содержать IP-адреса серверов, на которых вы хотите установить и настроить сервисы. Пример файла `hosts.ini.example` также включен в репозиторий для вашего удобства.
+- Перейдите в директорию проекта:
+```bash
+cd ansible
+```
 
-- Также вам нужно создать файл `vault.yml` в папке `inventories/<environment>/group_vars/<environment>/vault.yml`. Этот файл должен содержать переменные, которые вы хотите зашифровать. Пример файла `vault.yml.example` также включен в репозиторий для вашего удобства.
+- Установите необходимые зависимости:
+```bash
+uv sync
+```
+
+- Активируйте виртуальное окружение:
+```bash
+source .venv/bin/activate
+```
+
+### Конфигурация
+
+- Создайте файл `hosts.ini` в папке `inventories/<environment>/hosts.ini`. Этот файл должен содержать IP-адреса серверов, на которых будет производиться установка и настройка сервисов. В репозитории доступен пример файла `hosts.ini.example`.
+
+- Также создайте файл `vault.yml` в папке `inventories/<environment>/group_vars/<environment>/vault.yml`. В этом файле должны храниться чувствительные переменные. Пример файла `vault.yml.example` включен в репозиторий.
 
   Вы можете зашифровать файл `vault.yml` с помощью следующей команды:
 ```bash
 ansible-vault encrypt inventories/<environment>/group_vars/<environment>/vault.yml
 ```
 
-- И наконец, вы можете запустить плейбук Ansible с помощью следующей команды:
+### Запуск Playbook
+
+- Для установки и настройки сервисов выполните команду:
 ```bash
 ansible-playbook -i inventories/<environment>/hosts.ini playbooks/postgres_exporter.yml --ask-vault-pass
 ```
 
-Примечание: Не забудьте заменить `<environment>` на окружение, в котором вы работаете (например, `dev`, `staging`, `test`, `production`). Также вам нужно заменить `postgres_exporter.yml` на имя сервиса, который вы хотите установить и настроить. И наконец, не забудьте использовать `ansible-lint` для проверки синтаксиса плейбука.
+> **Примечание:** Замените `<environment>` на нужное окружение (например, `dev`, `staging`, `test`, `production`). Также замените `postgres_exporter.yml` на имя плейбука, который хотите выполнить.
+
+- Проверьте синтаксис плейбука с помощью `ansible-lint`:
 ```bash
 ansible-lint playbooks/postgres_exporter.yml
 ```
 
-export ANSIBLE_ROLES_PATH=<path_to_roles>
+### Запуск тестов с Molecule
+
+- Чтобы протестировать роли Ansible с помощью Molecule, выполните:
+```bash
+molecule test
+```
+
+Если необходимо протестировать конкретный сценарий, используйте:
+```bash
+molecule test -s <scenario_name>
+```
