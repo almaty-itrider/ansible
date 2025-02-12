@@ -4,6 +4,8 @@
 
 This is an Ansible repository for installing and configuring various services.
 
+> **Note:** Ensure that `podman` is installed on your system, as Molecule uses it to create test environments. Installation instructions can be found [here](https://podman.io/docs/installation).
+
 ---
 
 ### Prerequisites
@@ -48,14 +50,14 @@ ansible-vault encrypt inventories/<environment>/group_vars/<environment>/vault.y
 
 - Execute the following command to install and configure services:
 ```bash
-ansible-playbook -i inventories/<environment>/hosts.ini playbooks/postgres_exporter.yml --ask-vault-pass
+ansible-playbook -i inventories/<environment>/hosts.ini playbooks/<playbook>.yml --ask-vault-pass
 ```
 
-> **Note:** Replace `<environment>` with your target environment (e.g., `dev`, `staging`, `test`, `production`). Also, replace `postgres_exporter.yml` with the specific service playbook you want to execute.
+> **Note:** Replace `<environment>` with your target environment (e.g., `dev`, `staging`, `test`, `production`). Also, replace `<playbook>.yml` with the specific service playbook you want to execute.
 
 - Use `ansible-lint` to check the syntax of your playbooks:
 ```bash
-ansible-lint playbooks/postgres_exporter.yml
+ansible-lint playbooks/<playbook>.yml
 ```
 
 ### Running Tests with Molecule
@@ -75,6 +77,8 @@ molecule test -s <scenario_name>
 ## RU
 
 Инструкция по установке и настройке сервисов с помощью Ansible
+
+> **Примечание:** Убедитесь, что `podman` установлен на вашем компьютере, так как Molecule использует его для создания тестового окружения. Инструкции по установке можно найти [здесь](https://podman.io/docs/installation).
 
 ---
 
@@ -120,14 +124,14 @@ ansible-vault encrypt inventories/<environment>/group_vars/<environment>/vault.y
 
 - Для установки и настройки сервисов выполните команду:
 ```bash
-ansible-playbook -i inventories/<environment>/hosts.ini playbooks/postgres_exporter.yml --ask-vault-pass
+ansible-playbook -i inventories/<environment>/hosts.ini playbooks/<playbook>.yml --ask-vault-pass
 ```
 
-> **Примечание:** Замените `<environment>` на нужное окружение (например, `dev`, `staging`, `test`, `production`). Также замените `postgres_exporter.yml` на имя плейбука, который хотите выполнить.
+> **Примечание:** Замените `<environment>` на нужное окружение (например, `dev`, `staging`, `test`, `production`). Также замените `<playbook>.yml` на имя плейбука, который хотите запустить.
 
 - Проверьте синтаксис плейбука с помощью `ansible-lint`:
 ```bash
-ansible-lint playbooks/postgres_exporter.yml
+ansible-lint playbooks/<playbook>.yml
 ```
 
 ### Запуск тестов с Molecule
