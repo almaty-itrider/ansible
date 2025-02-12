@@ -35,6 +35,11 @@ uv sync
 source .venv/bin/activate
 ```
 
+- Set the ANSIBLE_ROLES_PATH environment variable:
+```bash
+export ANSIBLE_ROLES_PATH=$(pwd)/roles
+```
+
 ### Configuration
 
 - Create an inventory file named `hosts.ini` inside `inventories/<environment>/hosts.ini`. This file should include the IP addresses of the servers you want to configure. An example file `hosts.ini.example` is provided in the repository for reference.
@@ -107,6 +112,11 @@ uv sync
 - Активируйте виртуальное окружение:
 ```bash
 source .venv/bin/activate
+```
+
+- Установите переменную окружения ANSIBLE_ROLES_PATH:
+```bash
+export ANSIBLE_ROLES_PATH=$(pwd)/roles
 ```
 
 ### Конфигурация
