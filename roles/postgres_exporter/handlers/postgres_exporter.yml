@@ -1,11 +1,4 @@
 ---
-- name: Restart postgres_exporter
-  ansible.builtin.systemd_service:
-    name: postgres_exporter
-    state: restarted
-    enabled: true
-    daemon_reload: true
-
 - name: Copy postgres_exporter binary to {{ postgres_exporter_install_dir }}
   ansible.builtin.copy:
     src: "{{ postgres_exporter_tmp_dir }}/postgres_exporter-{{ postgres_exporter_version }}.linux-{{ postgres_exporter_proc_arch }}/postgres_exporter"
@@ -15,7 +8,14 @@
     mode: "0755"
     remote_src: true
 
-- name: Remove postgres_exporter binary from temporary directory
+- name: Remove postgres_exporter binary from {{ postgres_exporter_tmp_dir }}
   ansible.builtin.file:
     path: "{{ postgres_exporter_tmp_dir }}/postgres_exporter-{{ postgres_exporter_version }}.linux-{{ postgres_exporter_proc_arch }}"
     state: absent
+
+- name: Restart postgres_exporter
+  ansible.builtin.systemd_service:
+    name: postgres_exporter
+    state: restarted
+    enabled: true
+    daemon_reload: true
