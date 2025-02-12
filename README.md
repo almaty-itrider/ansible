@@ -4,6 +4,8 @@
 
 This is an Ansible repository for installing and configuring various services.
 
+Note: Ensure that podman is installed on your system, as Molecule uses it to create test environments. Installation instructions can be found here.
+
 ---
 
 ### Prerequisites
@@ -75,6 +77,8 @@ molecule test -s <scenario_name>
 ## RU
 
 Инструкция по установке и настройке сервисов с помощью Ansible
+
+Примечание: Убедитесь, что podman установлен на вашем компьютере, так как Molecule использует его для создания тестового окружения. Инструкции по установке можн
 
 ---
 
