@@ -10,7 +10,7 @@ This is an Ansible repository for installing and configuring various services.
 
 ### Prerequisites
 
-- First, you need to install `uv` to manage dependencies efficiently:
+- First, you need to install `uv` package manager to manage dependencies efficiently:
 ```bash
 pip install uv
 ```
@@ -84,7 +84,7 @@ molecule test -s <scenario_name>
 
 ### Предварительные требования
 
-- Сначала установите `uv` для управления зависимостями:
+- Сначала установите пакетный менеджер `uv` для управления зависимостями:
 ```bash
 pip install uv
 ```
