@@ -22,7 +22,7 @@ git clone https://github.com/almaty-itrider/ansible.git
 
 - Navigate to the project directory:
 ```bash
-cd ansible
+cd ansible/
 ```
 
 - Install the required dependencies:
@@ -96,7 +96,7 @@ git clone https://github.com/almaty-itrider/ansible.git
 
 - Перейдите в директорию проекта:
 ```bash
-cd ansible
+cd ansible/
 ```
 
 - Установите необходимые зависимости:
