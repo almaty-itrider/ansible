@@ -171,6 +171,16 @@ metrics:
       WHERE idx_scan = 0
       ORDER BY index_size DESC;
 
+  # Количество активных соединений
+  - metric_name: pg_active_connections_count
+    type: gauge
+    help: 'Number of active connections.'
+    values: [active_connections_count]
+    query: |
+      SELECT COUNT(*) AS active_connections_count
+      FROM pg_stat_activity
+      WHERE state = 'active';
+
 queries:
   - query_name: pg_process_idle_query
     query: |
